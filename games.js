@@ -276,7 +276,7 @@ class Games {
                     self.drawNumber(event.currentTarget.textContent);
 
                     for (let i = 0; i < 81; i++) {
-                        if (self.slove[i] === 0) return;
+                        if (!self.slove[i]) return;
                     }
                     if (sudoku.solve(self.getSolveString())) {
                         showModal("恭喜你已成功通关！");
@@ -334,43 +334,63 @@ class Games {
             this.context.moveTo(0, i * this.CELL_SIZE + radius);
             this.context.lineTo(this.canvasSize, i * this.CELL_SIZE + radius);
         }
-        this.context.strokeStyle = "orange";
+        this.context.strokeStyle = "peru";
         this.context.stroke();
     }
 
     drawNumber(value) {
 
         this.context.fillStyle = "#000";
-        this.context.fillText(value, 16 + this.selection[0] * 32, 16 + this.selection[1] * 32);
+        const x = this.selection[0] * 32 + (16 - this.fontWidth / 2);
+        const y = this.selection[1] * 32 + (16 - this.fontHeight / 2) + this.fontHeight;
+        this.context.fillText(value, x, y);
     }
 
     drawPuzzle() {
-        this.context.font = "18px Georgia";
-        this.context.textAlign = "center";
-        this.context.textBaseline = "middle";
+        this.context.font = "18px Arial";
+        // this.context.textAlign = "center";
+        // this.context.textBaseline = "middle";
+        if (!this.fontWidth)
+            this.fontWidth = this.context.measureText("1").width | 0;
+        if (!this.fontHeight)
+            this.fontHeight = this.context.measureText("1").actualBoundingBoxAscent | 0;
 
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
-                const value = this.borad[j][i];
+                const value = this.borad[i][j];
                 if (!value) continue;
 
-                if (!this.puzzle[translateSelectionToIndex([i, j])]) {
-                    console.log(j, i, translateSelectionToIndex([j, i]), value);
+                if (!this.puzzle[translateSelectionToIndex([j, i])]) {
+
                     this.context.fillStyle = "#000";
                 } else {
                     this.context.fillStyle = "#a8a8a8";
                 }
-                this.context.fillText(value, 16 + i * 32, 16 + j * 32);
+                const x = j * 32 + (16 - this.fontWidth / 2);
+                const y = i * 32 + (16 - this.fontHeight / 2) + this.fontHeight;
+                this.context.fillText(value, x, y);
             }
         }
     }
 
-
     drawSelection() {
         this.context.fillStyle = this.SELECTION_COLOR;
-        this.context.fillRect((this.selection[0] * (32) + 2.5),
-            (this.selection[1] * (32) + 2.5),
-            this.RENDERER_SIZE, this.RENDERER_SIZE)
+        let y = (this.selection[1] * (32) + 2.5);
+        let height = this.RENDERER_SIZE;
+        if (this.selection[1] % 3 === 0) {
+            y += 1;
+            height -= 1;
+        }
+        let x = (this.selection[0] * (32) + 2.5);
+        let width = this.RENDERER_SIZE;
+        if (this.selection[0] % 3 === 0) {
+            x += 1;
+            width -= 1;
+        }
+
+        this.context.fillRect(x,
+            y,
+            width, height)
     }
 
     findValidNumbers() {
@@ -383,29 +403,42 @@ class Games {
             7,
             8,
             9];
-        for (let j = 0; j < 9; j++) {
-            const current = this.borad[j][this.selection[0]];
+        const index = translateSelectionToIndex(this.selection);
+        const x = index - index % 9;
 
-            if (current === 0) continue;
-            const index = numbers.indexOf(current);
-            if (index !== -1) numbers[index] = 0;
+        for (let i = x; i < x + 9; i++) {
+            const cur = this.slove[i];
+            if (!cur) continue;
+            const idx = numbers.indexOf(cur);
+            if (~idx) numbers[idx] = 0;
         }
-        for (let j = 0; j < 9; j++) {
-            const current = this.borad[this.selection[1]][j];
-            if (current === 0) continue;
-            const index = numbers.indexOf(current);
-            if (index !== -1) numbers[index] = 0;
+        const y = index % 9;
+        for (let i = 0; i < 9; i++) {
+            const cur = this.slove[y + i * 9];
+            if (!cur) continue;
+            const idx = numbers.indexOf(cur);
+            if (~idx) numbers[idx] = 0;
         }
-        const startX = this.selection[0] - this.selection[0] % 3;
-        const startY = this.selection[1] - this.selection[1] % 3;
-        for (let i = startX; i < startX + 3; i++) {
-            for (let j = startY; j < startY + 3; j++) {
-                const current = this.borad[i][j];
-                if (current === 0) continue;
-                const index = numbers.indexOf(current);
-                if (index !== -1) numbers[index] = 0;
+        const startX = index - ((index / 9 | 0) % 3 * 9) - index % 3;
+
+        for (let i = 0; i < 3; i++) {
+            for (let j = 0; j < 3; j++) {
+                const cur = this.slove[startX + j + i * 9];
+                if (!cur) continue;
+                const idx = numbers.indexOf(cur);
+                if (~idx) numbers[idx] = 0;
             }
         }
+
+        // const startY = this.selection[1] - this.selection[1] % 3;
+        // for (let i = startX; i < startX + 3; i++) {
+        //     for (let j = startY; j < startY + 3; j++) {
+        //         const current = this.borad[j][i];
+        //         if (current === 0) continue;
+        //         const index = numbers.indexOf(current);
+        //         if (index !== -1) numbers[index] = 0;
+        //     }
+        // }
         return numbers;
     }
 
@@ -435,13 +468,12 @@ class Games {
 
 
         //sudoku.generate('very-hard')
-        return '7.6521349291384657435796218149263785567418932823975461918637524674152893352849176'
-            .split('').map(v => {
-                    const value = parseInt(v);
-                    if (isNaN(value)) return null;
-                    return value;
-                }
-            );
+        return sudoku.generate('very-hard').split('').map(v => {
+                const value = parseInt(v);
+                if (isNaN(value)) return null;
+                return value;
+            }
+        );
     }
 
     restart() {
@@ -496,7 +528,9 @@ class Games {
             let y = event.clientY - this.canvasClientY;
             x = (x / 32) | 0;
             y = (y / 32) | 0;
-            if (!this.borad[y][x] || (!this.puzzle[translateSelectionToIndex([x, y])])) {
+            const index = translateSelectionToIndex([x, y]);
+            if (this.puzzle[index]) return;
+            if (!this.borad[y][x]) {
                 if (this.selection[0] !== x || this.selection[1] !== y) {
                     this.clearSelection();
                     const number = this.slove[translateSelectionToIndex(this.selection)];
