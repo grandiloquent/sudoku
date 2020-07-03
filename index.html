@@ -140,6 +140,30 @@
         .mod_alert .btn + .btn {
             margin-left: 10px;
         }
+
+        .answer-container {
+            display: flex;
+            border-top: 1px solid #ccc;
+            border-right: 1px solid #ccc;
+            flex-direction: row;
+            flex-wrap: wrap;
+            width: 288px;
+        }
+
+        .answer-container > div {
+            position: relative;
+            border: 1px solid #ccc;
+            border-top: 0;
+            border-right: 0;
+            height: 30px;
+            box-sizing: border-box;
+            line-height: 30px;
+            background: #fff;
+            color: #333;
+            font-size: 14px;
+            width: 32px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -160,11 +184,12 @@
 
     <div class="button-wrapper">
         <a class="btn btn-restart">重新开始</a>
-        <a class="btn">提示</a>
+        <a class="btn btn-tip">提示</a>
         <a class="btn btn-save">存档</a>
     </div>
 </div>
 <script src="games.js"></script>
+
 </body>
 
 </html>

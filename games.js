@@ -104,6 +104,41 @@ function showModal(message) {
     document.body.appendChild(div);
 }
 
+function showModalView(message) {
+    const div = document.createElement('div');
+
+    const modAlertMask = document.createElement('div');
+    modAlertMask.className = 'mod_alert_mask show';
+    div.appendChild(modAlertMask);
+
+    const modAlert = document.createElement('div');
+    modAlert.className = 'mod_alert fixed show';
+    modAlert.style.padding = '20px 10px';
+    modAlert.style.width = '308px';
+    div.appendChild(modAlert);
+
+
+    modAlert.appendChild(message);
+
+    const btns = document.createElement('div');
+    btns.className = 'btns';
+    modAlert.appendChild(btns);
+
+    const btn2 = document.createElement('div');
+    btn2.className = 'btn btn_2';
+    btns.appendChild(btn2);
+    btn2.appendChild(document.createTextNode('返回'));
+
+
+    btn2.addEventListener('click', function () {
+        div.remove();
+    });
+    modAlertMask.addEventListener('click', function () {
+        div.remove();
+    });
+    document.body.appendChild(div);
+}
+
 function isWeChat() {
     if (mIsWeChat === null)
         mIsWeChat =
@@ -175,6 +210,8 @@ class Games {
         this.BORDER_BOLD = 2;
         this.SELECTION_COLOR = "rgba(250,22,22,.3)";
         this.selection = [];
+        this.puzzle = null;
+
         this.calculateCanvasSize();
         this.setCanvasStyle();
 
@@ -195,6 +232,36 @@ class Games {
         this.canvasSize = this.COLUMNS * this.CELL_SIZE + this.BORDER_BOLD;
     }
 
+    buildSolveElement(str) {
+        console.log(str);
+        const answerContainer = document.createElement('div');
+        answerContainer.className = 'answer-container';
+
+        for (let i = 0; i < str.length; i++) {
+            const div = document.createElement('div');
+            div.appendChild(document.createTextNode(str[i]));
+            answerContainer.appendChild(div);
+        }
+        return answerContainer;
+    }
+
+    getPuzzleString() {
+        let str = '';
+        for (let i = 0; i < this.puzzle.length; i++) {
+            str = str.concat(this.puzzle[i] || '.');
+        }
+        return str;
+    }
+
+    getSolveString() {
+        let str = '';
+        for (let i = 0; i < this.slove.length; i++) {
+            str = str.concat(this.slove[i] || '.');
+        }
+
+        return str;
+    }
+
     initializeButtons() {
         this.buttons = Array.from(document.querySelectorAll('.button-wrapper .btn-digit'));
         const self = this;
@@ -207,6 +274,13 @@ class Games {
                     self.clearSelection();
                     self.drawSelection();
                     self.drawNumber(event.currentTarget.textContent);
+
+                    for (let i = 0; i < 81; i++) {
+                        if (self.slove[i] === 0) return;
+                    }
+                    if (sudoku.solve(self.getSolveString())) {
+                        showModal("恭喜你已成功通关！");
+                    }
                 }
             );
         });
@@ -222,6 +296,13 @@ class Games {
             saveCache("puzzle", JSON.stringify(this.puzzle));
             saveCache("slove", JSON.stringify(this.slove));
             showModal('游戏成功存档！');
+        });
+        const btnTip = document.querySelector('.btn-tip');
+        btnTip.addEventListener('click', event => {
+
+            const answer = this.buildSolveElement(sudoku.solve(this.getPuzzleString()));
+            showModalView(answer);
+
         });
     }
 
@@ -303,14 +384,14 @@ class Games {
             8,
             9];
         for (let j = 0; j < 9; j++) {
-            console.log(this.selection[0]);
-            const current = this.borad[this.selection[0]][j];
+            const current = this.borad[j][this.selection[0]];
+
             if (current === 0) continue;
             const index = numbers.indexOf(current);
             if (index !== -1) numbers[index] = 0;
         }
         for (let j = 0; j < 9; j++) {
-            const current = this.borad[j][this.selection[1]];
+            const current = this.borad[this.selection[1]][j];
             if (current === 0) continue;
             const index = numbers.indexOf(current);
             if (index !== -1) numbers[index] = 0;
@@ -346,20 +427,28 @@ class Games {
             }
         } catch (e) {
         }
-        this.puzzle || (this.puzzle = sudoku.generate('very-hard').split('').map(v => {
-                const value = parseInt(v);
-                if (isNaN(value)) return null;
-                return value;
-            }
-        ))
-        ;
-        console.log(this.puzzle);
+        this.puzzle || (this.puzzle = this.makePuzzleArray())
         this.setBoard();
     }
 
+    makePuzzleArray() {
+
+
+        //sudoku.generate('very-hard')
+        return '7.6521349291384657435796218149263785567418932823975461918637524674152893352849176'
+            .split('').map(v => {
+                    const value = parseInt(v);
+                    if (isNaN(value)) return null;
+                    return value;
+                }
+            );
+    }
+
     restart() {
-        this.puzzle = makepuzzle(solvepuzzle(makeArray(81, null)));
-        //console.log(solvepuzzle([1, 5, 0, 8, 2, 4, 7, 3, 5, 7, 2, 4, 0, 3, 5, 8, 1, 6, 5, 3, 8, 7, 6, 1, 2, 4, 0, 4, 1, 7, 2, 8, 0, 6, 5, 3, 8, 5, 2, 6, 1, 3, 0, 7, 4, 6, 0, 3, 4, 5, 7, 1, 2, 8, 2, 4, 5, 1, 0, 8, 3, 6, 7, 0, 7, 1, 3, 4, 6, 5, 8, 2, 3, 8, 6, 5, 7, 2, 4, 0, 1]));
+        removeCache('slove');
+        removeCache('puzzle');
+        this.puzzle = this.makePuzzleArray();
+        this.slove = null;
         this.setBoard();
     }
 
