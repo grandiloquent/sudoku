@@ -1,7 +1,2 @@
-"# sudoku" 
-"# sudoku" 
-"# sudoku" 
-"# sudoku" 
-"# sudoku" 
-"# sudoku" 
-"# sudoku" 
+# sudoku
+
