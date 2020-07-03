@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="sudoku.js"></script>
+
+    <!-- <script>
+         const selection = [];
+         const X = 0;
+         const Y = 1;
+
+         onst WIDTH = 2;
+         const HEIGHT = 3;
+         const SELECTION_COLOR = "rgba(250,22,22,.3)";
+
+         function drawSelection(ctx, x, y, width, height) {
+             if (selection.length > 0) {
+                 ctx.clearRect(selection[X], selection[Y], selection[WIDTH], selection[HEIGHT]);
+             } else {
+                 selection[X] = x;
+                 selection[Y] = y;
+                 selection[WIDTH] = width;
+                 selection[HEIGHT] = height;
+             }
+             ctx.fillStyle = SELECTION_COLOR;
+             ctx.fillRect(selection[X], selection[Y], selection[WIDTH], selection[HEIGHT])
+         }
+
+         function init() {
+             document.addEventListener('click', event => {
+                 console.log(event.clientX - clientX, event.clientY - clientY);
+             })
+
+             const width = 290;
+             const height = 290;
+
+             const canvas = document.getElementById('mainCanvas');
+             canvas.style.height = height + 'px';
+             canvas.style.width = width + 'px';
+             canvas.style.marginLeft = (document.body.clientWidth - width) / 2 + 'px';
+             canvas.style.marginTop = '30px';
+
+             const ctx = canvas.getContext('2d');
+             ctx.clearRect(0, 0, width, height);
+             resizeCanvasToDisplaySize(document.getElementById('mainCanvas'));
+             //
+             drawGrid(ctx, 9, 9, ((height / 9) | 0), height);
+             drawGrid1(ctx, 9, 9, ((height / 9) | 0), height);
+
+
+             console.log()
+             //drawSelection(ctx);
+             //
+             // ctx.font = "18px Georgia";
+             // ctx.textAlign = "center";
+             // ctx.textBaseline = "middle";
+             // ctx.fillText('3', 16.25, 16.25);
+             // ctx.clearRect(2, 2, 30.5, 30);
+             // ctx.fillText('3', 16.25, 16.25);
+             // ctx.lineWidth = 2;
+             // ctx.beginPath();
+             // ctx.fillStyle = "yellow";
+             // ctx.fillRect(0, 0, width, height);
+             // const radius = ctx.lineWidth / 2;
+             // ctx.moveTo(1, 0);
+             // ctx.lineTo(1,100);
+             // ctx.strokeStyle = "red";
+             // ctx.stroke();
+         }
+
+
+
+         function drawGrid(ctx, columns, rows, cellSize, height) {
+             ctx.lineWidth = 1;
+             ctx.beginPath();
+             const radius = ctx.lineWidth / 2;
+             for (let i = 0, j = columns; i < j; i++) {
+                 ctx.moveTo(i * cellSize + radius, 0);
+                 ctx.lineTo(i * cellSize + radius, height);
+                 console.log(i * cellSize + radius, height)
+             }
+             for (let i = 0, j = rows; i < j; i++) {
+                 ctx.moveTo(0, i * cellSize + radius);
+                 ctx.lineTo(height, i * cellSize + radius);
+             }
+
+             ctx.strokeStyle = "orange";
+             ctx.stroke();
+         }
+
+         function drawGrid1(ctx, columns, rows, cellSize, height) {
+             ctx.lineWidth = 2;
+             ctx.beginPath();
+             const radius = ctx.lineWidth / 2;
+             for (let i = 0, j = columns + 3; i < j; i += 3) {
+                 ctx.moveTo(i * cellSize + radius, 0);
+                 ctx.lineTo(i * cellSize + radius, height);
+
+             }
+             for (let i = 0, j = rows + 3; i < j; i += 3) {
+                 ctx.moveTo(0, i * cellSize + radius);
+                 ctx.lineTo(height, i * cellSize + radius);
+             }
+
+             ctx.strokeStyle = "peru";
+             ctx.stroke();
+         }
+     </script>-->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0;
+            padding-top: 30px;
+        }
+
+        .wrapper {
+            position: relative;
+        }
+
+        .button-wrapper {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            margin: 20px auto 0;
+            border: 1px solid #ccc;
+        }
+
+        .btn {
+            position: relative;
+            width: 100px;
+            height: 30px;
+            box-sizing: border-box;
+            line-height: 30px;
+            background: #fff;
+            color: #333;
+            font-size: 14px;
+            border-left: 1px solid #ccc;
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn:first-child {
+            border-left: 0;
+        }
+
+        .btn.disable {
+            background: #cccccc;
+            color: #ffffff
+        }
+
+
+    </style>
+</head>
+<body>
+<h1>数独</h1>
+<div class="wrapper">
+    <canvas id="mainCanvas"></canvas>
+    <div class="button-wrapper">
+        <a class="btn btn-digit">1</a>
+        <a class="btn btn-digit">2</a>
+        <a class="btn btn-digit">3</a>
+        <a class="btn btn-digit">4</a>
+        <a class="btn btn-digit">5</a>
+        <a class="btn btn-digit">6</a>
+        <a class="btn btn-digit">7</a>
+        <a class="btn btn-digit">8</a>
+        <a class="btn btn-digit">9</a>
+    </div>
+
+    <div class="button-wrapper">
+        <a class="btn btn-restart">重新开始</a>
+        <a class="btn">提示</a>
+        <a class="btn">存档</a>
+    </div>
+</div>
+<script src="games.js"></script>
+</body>
+
+</html>
