@@ -274,7 +274,8 @@ class Games {
                     self.clearSelection();
                     self.drawSelection();
                     self.drawNumber(event.currentTarget.textContent);
-
+                    self.updateValidNumbersButton();
+                    
                     for (let i = 0; i < 81; i++) {
                         if (!self.slove[i]) return;
                     }
@@ -353,7 +354,7 @@ class Games {
         if (!this.fontWidth)
             this.fontWidth = this.context.measureText("1").width | 0;
         if (!this.fontHeight)
-            this.fontHeight = this.context.measureText("1").actualBoundingBoxAscent | 0;
+            this.fontHeight = this.context.measureText("1").actualBoundingBoxAscent | (this.fontWidth * 1.3);
 
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
@@ -390,7 +391,7 @@ class Games {
 
         this.context.fillRect(x,
             y,
-            width, height)
+            width, height);
     }
 
     findValidNumbers() {
@@ -530,7 +531,7 @@ class Games {
             y = (y / 32) | 0;
             const index = translateSelectionToIndex([x, y]);
             if (this.puzzle[index]) return;
-            if (!this.borad[y][x]) {
+            if (!this.borad[y][x] || !this.puzzle[index]) {
                 if (this.selection[0] !== x || this.selection[1] !== y) {
                     this.clearSelection();
                     const number = this.slove[translateSelectionToIndex(this.selection)];
@@ -542,8 +543,7 @@ class Games {
         })
     }
 
-    setSelection(x, y) {
-        this.selection = [x, y];
+    updateValidNumbersButton() {
         const numbers = this.findValidNumbers();
         for (let i = 0; i < numbers.length; i++) {
             if (numbers[i]) {
@@ -552,6 +552,11 @@ class Games {
                 this.buttons[i] && (this.buttons[i].className = 'btn disable');
             }
         }
+    }
+
+    setSelection(x, y) {
+        this.selection = [x, y];
+        this.updateValidNumbersButton();
         this.drawSelection();
     }
 
